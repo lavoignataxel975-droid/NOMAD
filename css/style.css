@@ -213,6 +213,67 @@ button { font: inherit; }
 }
 
 /* =========================================================
+   1 → 3. FERMETURE OPTIQUE
+   Actif seulement quand le JS ajoute .iris-on sur <html>
+   (sinon hero, intro et bandeau s'affichent normalement).
+   Le hero rouge se referme en cercle sur le « NOMAD » du milieu,
+   dévoilant tout autour l'intro + le bandeau (jamais de vide).
+   ========================================================= */
+.iris-ring { display: none; }
+.iris-on .iris { height: calc(100svh - var(--hdr-h) + 200svh); position: relative; }
+.iris-on .iris-stage {
+  position: sticky;
+  top: var(--hdr-h);
+  height: calc(100svh - var(--hdr-h));
+  overflow: hidden;
+  background: var(--white);
+}
+.iris-on .iris-stage > .hero {
+  position: absolute;
+  inset: 0;
+  height: auto;
+  min-height: 0;
+  z-index: 2;
+  clip-path: circle(150% at 50% 50%);
+  will-change: clip-path;
+}
+.iris-on .iris-stage > .hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 50%, transparent 35%, rgba(11, 20, 40, .5) 100%);
+  opacity: var(--vig, 0);
+}
+.iris-on .hero-line { will-change: transform, opacity; }
+.iris-on .iris-next {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+.iris-on .iris-next .intro { flex: 1 0 auto; width: 100%; }
+.iris-on .iris-next.is-measuring .intro { flex: 0 0 auto; }
+.iris-on .iris-next .marquee { flex-shrink: 0; }
+.iris-on .iris-ring {
+  display: block;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 3;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  box-shadow: 0 0 0 2px var(--navy), 0 0 0 10px rgba(11, 47, 110, .08), 0 0 60px 10px rgba(11, 20, 40, .22);
+  opacity: 0;
+}
+
+/* =========================================================
    2. INTRO
    ========================================================= */
 .intro {
@@ -421,21 +482,24 @@ button { font: inherit; }
 /* =========================================================
    6. AVIS GOOGLE
    ========================================================= */
+/* Titre à gauche (reste visible au défilement), avis à droite —
+   le premier avis est mis en avant sur toute la largeur. */
 .avis {
   padding: clamp(48px, 7vw, 96px) var(--pad-x);
   max-width: 1180px;
   margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 36px;
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: clamp(32px, 5vw, 72px);
+  align-items: start;
   scroll-margin-top: var(--hdr-h);
 }
-.avis-head {
+.avis-side {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
+  flex-direction: column;
   gap: 24px;
-  flex-wrap: wrap;
+  position: sticky;
+  top: calc(var(--hdr-h) + 24px);
 }
 .title-block { display: flex; flex-direction: column; gap: 12px; }
 .avis-score { display: flex; align-items: center; gap: 14px; }
@@ -445,7 +509,7 @@ button { font: inherit; }
 
 .avis-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+  grid-template-columns: 1fr 1fr;
   gap: 20px;
 }
 .review {
@@ -476,7 +540,35 @@ button { font: inherit; }
   font-weight: 700;
   font-size: 15px;
 }
-.avis-all { align-self: center; }
+/* Avis mis en avant */
+.review:first-child {
+  grid-column: 1 / -1;
+  background: var(--red);
+  padding: clamp(26px, 3vw, 36px);
+}
+.review:first-child .stars,
+.review:first-child blockquote { color: var(--white); }
+.review:first-child blockquote { font-size: clamp(19px, 2vw, 24px); line-height: 1.45; }
+.review:first-child figcaption { background: var(--white); color: var(--red); }
+.avis-all { align-self: flex-start; }
+
+/* Tablette & mobile : titre au-dessus, avis en carrousel à glisser */
+@media (max-width: 900px) {
+  .avis { grid-template-columns: 1fr; }
+  .avis-side { position: static; }
+  .avis-grid {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 14px;
+    margin: 0 calc(-1 * var(--pad-x));
+    padding: 0 var(--pad-x) 8px;
+    scroll-padding: 0 var(--pad-x);
+    scrollbar-width: none;
+  }
+  .avis-grid::-webkit-scrollbar { display: none; }
+  .review { flex: 0 0 min(84vw, 420px); scroll-snap-align: start; }
+}
 
 /* =========================================================
    7. FOOTER

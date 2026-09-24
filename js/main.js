@@ -234,4 +234,100 @@
       else setMenu(false);
     }
   });
+  /* =========================================================
+     Hero : fermeture optique qui dévoile l'intro + le bandeau
+     ========================================================= */
+  (function irisHero() {
+    const iris = $('#iris');
+    if (!iris || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    document.documentElement.classList.add('iris-on');
+
+    const stage = $('#irisStage');
+    const hero = $('.hero', stage);
+    const next = $('#irisNext');
+    const ring = $('#irisRing');
+    const intro = $('.intro', next);
+    const photo = $('.intro-photo', next);
+    const marquee = $('.marquee', next);
+    const [top, mid, bot] = $$('.hero-line', hero);
+    const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+    const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+    /* Étapes (part du défilement de la section) */
+    const CLOSE_END = .9;    // diaphragme fermé : intro + bandeau entièrement visibles
+
+    let W, H, midW, exitTop, exitBot;
+
+    /* L'intro + le bandeau doivent tenir dans un écran : on ajuste la photo */
+    function fitNext() {
+      photo.style.height = '';
+      photo.style.display = '';
+      next.classList.add('is-measuring');
+      const avail = stage.clientHeight - marquee.offsetHeight;
+      const over = intro.offsetHeight - avail;
+      if (over > 0) {
+        const h = photo.offsetHeight - over;
+        if (h < 140) photo.style.display = 'none';
+        else photo.style.height = h + 'px';
+      }
+      next.classList.remove('is-measuring');
+    }
+
+    function measure() {
+      W = stage.clientWidth;
+      H = stage.clientHeight;
+      midW = mid.offsetWidth;
+      const c = el => el.offsetTop + el.offsetHeight / 2;
+      /* distance pour que les lignes du haut / du bas sortent du cadre */
+      exitTop = top.offsetTop + top.offsetHeight;
+      exitBot = H - bot.offsetTop;
+      fitNext();
+    }
+
+    function frame() {
+      const total = iris.offsetHeight - stage.offsetHeight;
+      const hh = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hdr-h')) || 64;
+      const p = clamp((hh - iris.getBoundingClientRect().top) / total, 0, 1);
+      const rMax = Math.hypot(W / 2, H / 2) + 4;
+
+      /* 1. Fermeture du hero rouge */
+      const c = ease(clamp(p / CLOSE_END, 0, 1));
+      const R1 = rMax * (1 - c);
+      hero.style.clipPath = 'circle(' + R1.toFixed(1) + 'px at 50% 50%)';
+      hero.style.setProperty('--vig', clamp(p / CLOSE_END * 1.4, 0, 1).toFixed(3));
+      mid.style.transform = 'scale(' + Math.min(1, (2 * R1 * .82) / midW).toFixed(4) + ')';
+      const f = clamp(p / (CLOSE_END * .5), 0, 1); // effacées à mi-course
+      /* Celui du dessus part vers le haut, celui du dessous vers le bas */
+      top.style.transform = 'translateY(' + (-exitTop * ease(f)).toFixed(1) + 'px)';
+      bot.style.transform = 'translateY(' + (exitBot * ease(f)).toFixed(1) + 'px)';
+      top.style.opacity = bot.style.opacity = (1 - f * f).toFixed(3);
+
+      /* 2. L'intro + le bandeau, déjà derrière, arrivent de l'extérieur vers l'intérieur */
+      next.style.transform = c >= 1 ? '' : 'scale(' + (1.12 - .12 * c).toFixed(4) + ')';
+
+      /* Bague du diaphragme */
+      const R = R1;
+      ring.style.width = ring.style.height = (2 * R).toFixed(1) + 'px';
+      ring.style.opacity = (p > .02 && R > 1 && R < rMax - 2) ? '1' : '0';
+    }
+
+    let queued = false;
+    const request = () => {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(() => { queued = false; frame(); });
+    };
+    const remeasure = () => { measure(); frame(); };
+    /* Le hero est épinglé : « #top » ne suffit plus pour remonter tout en haut */
+    $$('a[href="#top"]').forEach(link => link.addEventListener('click', e => {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }));
+
+    window.addEventListener('scroll', request, { passive: true });
+    window.addEventListener('resize', remeasure);
+    document.fonts && document.fonts.ready.then(remeasure);
+    window.addEventListener('load', remeasure);
+    remeasure();
+  })();
 })();
