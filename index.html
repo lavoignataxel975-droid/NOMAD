@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NOMAD — Pastrami maison · Montpellier</title>
+<meta name="description" content="NOMAD, sandwichs, buns, rolls et kroks garnis de notre pastrami de bœuf fait maison. 7 Rue du Puits du Temple, 34000 Montpellier.">
+<meta name="theme-color" content="#B5121B">
+<meta property="og:title" content="NOMAD — Pastrami maison · Montpellier">
+<meta property="og:description" content="Sandwichs, buns, rolls et kroks garnis de notre pastrami de bœuf fait maison.">
+<meta property="og:image" content="assets/sandwich-chevre.jpg">
+<meta property="og:type" content="website">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Black&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="page">
+
+  <!-- ============ HEADER ============ -->
+  <header class="site-header" id="siteHeader">
+    <a href="#top" class="logo" data-close-pages>NOMAD</a>
+    <button class="burger" id="burger" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="headerMenu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="header-menu" id="headerMenu">
+      <nav class="header-nav" aria-label="Navigation principale">
+        <a href="#top" data-close-pages>Accueil</a>
+        <button type="button" data-open="carte">La carte</button>
+        <button type="button" data-open="gallery">Photos</button>
+      </nav>
+      <a href="#infos" class="header-cta" data-close-pages>Nous trouver</a>
+    </div>
+  </header>
+
+  <main>
+    <!-- ============ 1. HERO ============ -->
+    <section id="top" class="hero" aria-label="NOMAD">
+      <div class="hero-line" data-hero-line aria-hidden="true">NOMAD</div>
+      <div class="hero-line" data-hero-line>NOMAD</div>
+      <div class="hero-line" data-hero-line aria-hidden="true">NOMAD</div>
+    </section>
+
+    <!-- ============ 2. INTRO ============ -->
+    <section class="intro">
+      <div class="intro-text">
+        <h1>Pastrami<br>maison</h1>
+        <div class="rule rule--intro"></div>
+        <p>Sandwichs, buns, rolls et kroks garnis de notre pastrami de bœuf fait maison. Sauces, pickles et oignons confits aussi, tout est préparé sur place.</p>
+        <div class="btn-row">
+          <a href="#carte" class="btn btn--solid">Voir la carte</a>
+          <a href="#infos" class="btn btn--outline">Horaires &amp; adresse</a>
+        </div>
+      </div>
+      <img src="assets/sandwich-chevre.jpg" alt="Sandwich Chèvre miel" class="intro-photo" width="714" height="854">
+    </section>
+
+    <!-- ============ 3. BANDEAU DÉFILANT ============ -->
+    <div class="marquee" data-hdr="red" aria-hidden="true">
+      <div class="marquee-track" id="marqueeTrack"></div>
+    </div>
+
+    <!-- ============ 4. LA CARTE ============ -->
+    <section id="carte" class="carte">
+      <div class="carte-head">
+        <h2 class="section-title" id="carteTitle">Nos sandwichs maison</h2>
+        <div class="rule rule--carte" id="carteRule"></div>
+        <div class="tabs" role="tablist" aria-label="Catégories de la carte" id="carteTabs"></div>
+      </div>
+      <div id="carteBody" role="tabpanel" aria-labelledby="carteTitle"></div>
+    </section>
+
+    <!-- ============ 5. CARROUSEL PHOTOS ============ -->
+    <section id="photos" class="photo-strip" data-hdr="red" aria-label="Photos">
+      <div class="photo-track" id="photoTrack"></div>
+    </section>
+
+    <!-- ============ 6. AVIS GOOGLE ============ -->
+    <section id="avis" class="avis">
+      <div class="avis-head">
+        <div class="title-block">
+          <h2 class="section-title">Nos avis Google</h2>
+          <div class="rule"></div>
+        </div>
+        <div class="avis-score">
+          <span class="avis-note">X,X</span>
+          <div class="avis-meta">
+            <span class="stars" aria-label="5 étoiles sur 5">★★★★★</span>
+            <span class="avis-count">sur Google · XX avis</span>
+          </div>
+        </div>
+      </div>
+      <div class="avis-grid" id="avisGrid"></div>
+      <a href="https://maps.app.goo.gl/72hZZ28Cx7BQtt2dA" target="_blank" rel="noopener" class="btn btn--solid avis-all">Voir tous les avis</a>
+    </section>
+  </main>
+
+  <!-- ============ 7. FOOTER ============ -->
+  <footer id="infos" class="footer" data-hdr="red">
+    <div class="footer-top">
+      <div class="footer-col">
+        <h2 class="footer-title">Nous trouver</h2>
+        <div class="rule rule--white"></div>
+        <address class="footer-address">
+          <strong>7 Rue du Puits du Temple</strong>
+          <span>34000 Montpellier</span>
+          <a href="tel:">Téléphone à compléter</a>
+        </address>
+        <div><a href="https://maps.app.goo.gl/72hZZ28Cx7BQtt2dA" target="_blank" rel="noopener" class="btn btn--white">Itinéraire Google Maps</a></div>
+      </div>
+      <div class="footer-col">
+        <h2 class="footer-title">Horaires</h2>
+        <div class="rule rule--white"></div>
+        <div class="hours" id="hours"></div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-links">
+        <nav class="footer-nav" aria-label="Liens du pied de page">
+          <a href="#carte">La carte</a>
+          <button type="button" data-open="gallery">Photos</button>
+          <a href="#avis">Avis</a>
+        </nav>
+        <a href="https://www.instagram.com/nomad.montpellier?igsh=MTdkYmwycGFkaWI0NA%3D%3D" target="_blank" rel="noopener" class="btn btn--ghost-white">Instagram</a>
+      </div>
+      <div class="footer-bar">
+        <span class="footer-brand">Pastrami maison</span>
+        <span>© 2026 Nomad Montpellier</span>
+        <a href="#">Mentions légales</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============ PAGE CARTE (overlay) ============ -->
+  <div class="overlay overlay--carte" id="carteOverlay" role="dialog" aria-label="La carte" hidden>
+    <div class="overlay-carte-inner" id="carteAll"></div>
+  </div>
+
+  <!-- ============ PAGE PHOTOS (overlay) ============ -->
+  <div class="overlay overlay--gallery" id="galleryOverlay" role="dialog" aria-label="Photos" hidden>
+    <div class="gallery-head"><h2>Photos</h2></div>
+    <div class="gallery-cols">
+      <div class="gallery-col gallery-col--left" id="galleryLeft"></div>
+      <div class="gallery-col gallery-col--right" id="galleryRight"></div>
+    </div>
+  </div>
+
+  <!-- ============ LIGHTBOX ============ -->
+  <div class="lightbox" id="lightbox" role="dialog" aria-label="Photo agrandie" hidden>
+    <button type="button" class="lb-arrow" id="lbPrev" aria-label="Photo précédente">←</button>
+    <img id="lbImg" src="" alt="">
+    <button type="button" class="lb-arrow" id="lbNext" aria-label="Photo suivante">→</button>
+  </div>
+
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NOMAD — Aperçu iPhone</title>
+<link rel="icon" href="assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Black&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --c1:#B5121B; --c1-dark:#8f0e15; --c2:#FFFFFF; --c3:#0B2F6E; --c3-dark:#08234f;
+    --ff-title:'Archivo Black',sans-serif; --ff-body:'Poppins',system-ui,sans-serif;
+    /* Dimensions écran (points CSS) — pilotées par le choix d'appareil */
+    --screen-w:390px; --screen-h:844px; --bezel:14px; --radius:60px;
+    --scale:1;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{min-height:100%;}
+  body{
+    font-family:var(--ff-body);
+    background:
+      radial-gradient(1100px 520px at 50% -8%, rgba(255,255,255,0.10), transparent 60%),
+      linear-gradient(160deg, #8f0e15 0%, #B5121B 55%, #7a0b11 100%);
+    color:var(--c2);
+    display:flex; flex-direction:column; align-items:center;
+    padding:26px 16px 40px; min-height:100vh; min-height:100dvh; overflow-x:hidden;
+  }
+
+  header.demo-head{ text-align:center; margin-bottom:18px; }
+  .demo-head .brand{
+    font-family:var(--ff-title); font-weight:400; text-transform:uppercase;
+    letter-spacing:-1px; font-size:clamp(18px,2.6vw,26px); color:var(--c2);
+  }
+  .demo-head .sub{
+    font-family:var(--ff-body); font-weight:300; letter-spacing:1px;
+    font-size:13px; color:rgba(255,255,255,0.6); margin-top:6px;
+  }
+
+  /* Barre de contrôles */
+  .toolbar{
+    display:flex; flex-wrap:wrap; align-items:center; justify-content:center;
+    gap:10px 18px; margin-bottom:24px;
+    background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.14);
+    border-radius:6px; padding:12px 18px;
+  }
+  .toolbar .group{ display:flex; align-items:center; gap:10px; }
+  .toolbar .lbl{
+    font-size:11px; letter-spacing:2px; text-transform:uppercase;
+    color:rgba(255,255,255,0.55); font-weight:600;
+  }
+  .toolbar select{
+    font-family:var(--ff-body); font-size:14px; color:var(--c2);
+    background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.28);
+    padding:8px 12px; border-radius:3px; cursor:pointer; outline:none;
+  }
+  .toolbar select option{ color:#111; }
+  .seg{ display:flex; gap:6px; flex-wrap:wrap; }
+  .seg button, .toolbar .refresh{
+    font-family:var(--ff-body); font-weight:600; font-size:12px; letter-spacing:1px;
+    color:var(--c2); cursor:pointer; white-space:nowrap;
+    background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.28);
+    padding:9px 14px; border-radius:3px; transition:all .2s ease;
+  }
+  .seg button:hover, .toolbar .refresh:hover{ background:rgba(255,255,255,0.16); }
+  .seg button.is-active{ background:var(--c3); border-color:var(--c3); color:var(--c2); }
+
+  /* Zone d'affichage — le cadre est mis à l'échelle pour tenir dans la fenêtre */
+  .stage{
+    width:100%; display:flex; justify-content:center; align-items:flex-start;
+    height:calc((var(--screen-h) + var(--bezel)*2) * var(--scale));
+  }
+  .phone-wrap{ transform:scale(var(--scale)); transform-origin:top center; }
+
+  /* Cadre iPhone */
+  .phone{
+    position:relative;
+    width:calc(var(--screen-w) + var(--bezel)*2);
+    height:calc(var(--screen-h) + var(--bezel)*2);
+    background:linear-gradient(160deg,#1c252d,#10161b);
+    border-radius:var(--radius); padding:var(--bezel);
+    box-shadow:
+      0 0 0 2px #05080a,
+      0 2px 3px 3px rgba(255,255,255,0.06) inset,
+      0 40px 80px -20px rgba(0,0,0,0.65),
+      0 10px 30px rgba(0,0,0,0.45);
+  }
+  .phone::before{ content:""; position:absolute; right:-3px; top:190px; width:3px; height:90px; background:#0a0f13; border-radius:0 3px 3px 0; }
+  .side-btn{ position:absolute; left:-3px; width:3px; background:#0a0f13; border-radius:3px 0 0 3px; }
+  .side-btn.silent{ top:150px; height:34px; }
+  .side-btn.vup{ top:205px; height:60px; }
+  .side-btn.vdown{ top:280px; height:60px; }
+
+  .screen{
+    position:relative; width:var(--screen-w); height:var(--screen-h);
+    background:var(--c1); border-radius:calc(var(--radius) - var(--bezel)); overflow:hidden;
+  }
+  .screen iframe{ width:var(--screen-w); height:calc(var(--screen-h) - 54px); margin-top:54px; border:0; display:block; background:var(--c1); }
+  /* Barre d’état simulée (heure, réseau) — le site commence sous l’encoche comme dans Safari */
+  .statusbar{ position:absolute; top:0; left:0; right:0; height:54px; display:flex; align-items:center; justify-content:space-between; padding:6px 34px 0 42px; color:#fff; font:600 16px/1 -apple-system,system-ui,sans-serif; z-index:4; pointer-events:none; }
+  .island{
+    position:absolute; top:11px; left:50%; transform:translateX(-50%);
+    width:118px; height:34px; background:#05080a; border-radius:20px; z-index:5; pointer-events:none;
+  }
+
+  .hint{ margin-top:18px; font-size:13px; letter-spacing:.3px; color:rgba(255,255,255,0.6); text-align:center; max-width:460px; line-height:1.6; }
+  .hint b{ color:var(--c2); font-weight:600; }
+</style>
+</head>
+<body>
+
+<header class="demo-head">
+  <div class="brand">NOMAD</div>
+  <div class="sub">Aperçu mobile — présentation client</div>
+</header>
+
+<div class="toolbar">
+  <div class="group">
+    <span class="lbl">Appareil :</span>
+    <div class="seg" id="deviceSeg">
+      <button data-w="390" data-h="844" data-r="60" class="is-active">iPhone 15</button>
+      <button data-w="430" data-h="932" data-r="64">15 Pro Max</button>
+      <button data-w="375" data-h="812" data-r="52">iPhone SE/mini</button>
+    </div>
+    <button class="refresh" id="refreshBtn" title="Recharger la page">↻ Rafraîchir</button>
+  </div>
+</div>
+
+<div class="stage" id="stage">
+  <div class="phone-wrap">
+    <div class="phone">
+      <span class="side-btn silent"></span>
+      <span class="side-btn vup"></span>
+      <span class="side-btn vdown"></span>
+      <div class="screen">
+        <div class="island"></div>
+        <div class="statusbar"><span>9:41</span><span>●●● ▮</span></div>
+        <iframe id="phoneFrame" src="index.html" title="Aperçu mobile du site" loading="eager"></iframe>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p class="hint">Choisissez l'<b>appareil</b> ci-dessus. Le site défile <b>à l'intérieur</b> de l'écran, comme sur un vrai iPhone.</p>
+
+<script>
+(function(){
+  var root   = document.documentElement;
+  var frame  = document.getElementById('phoneFrame');
+  var seg    = document.getElementById('deviceSeg');
+  var refresh= document.getElementById('refreshBtn');
+
+  // Masque la barre de défilement dans le cadre (illusion iPhone)
+  function hideFrameScrollbar(){
+    try{
+      var doc = frame.contentDocument; if(!doc) return;
+      if(doc.getElementById('__demoHideSb')) return;
+      var s = doc.createElement('style');
+      s.id='__demoHideSb';
+      s.textContent='html{scrollbar-width:none;-ms-overflow-style:none;}html::-webkit-scrollbar{width:0;height:0;display:none;}';
+      (doc.head||doc.documentElement).appendChild(s);
+    }catch(e){}
+  }
+  frame.addEventListener('load', hideFrameScrollbar);
+
+  // Adapte l'échelle du cadre pour qu'il tienne dans la hauteur/largeur dispo
+  function fit(){
+    var w = parseInt(getComputedStyle(root).getPropertyValue('--screen-w')) + 28;
+    var h = parseInt(getComputedStyle(root).getPropertyValue('--screen-h')) + 28;
+    var availH = window.innerHeight - document.querySelector('.stage').getBoundingClientRect().top - 70;
+    var availW = Math.min(window.innerWidth - 32, 900);
+    var scale = Math.min(1, availH / h, availW / w);
+    if(!isFinite(scale) || scale <= 0) scale = 1;
+    root.style.setProperty('--scale', scale.toFixed(3));
+  }
+
+  // Choix de l'appareil
+  seg.addEventListener('click', function(e){
+    var b = e.target.closest('button[data-w]'); if(!b) return;
+    seg.querySelectorAll('button').forEach(function(x){ x.classList.toggle('is-active', x===b); });
+    root.style.setProperty('--screen-w', b.dataset.w + 'px');
+    root.style.setProperty('--screen-h', b.dataset.h + 'px');
+    root.style.setProperty('--radius',   b.dataset.r + 'px');
+    fit();
+  });
+
+  // Choix de la page
+
+  // Rafraîchir
+  refresh.addEventListener('click', function(){
+    try{ frame.contentWindow.location.reload(); }
+    catch(e){ frame.src = frame.src; }
+  });
+
+  window.addEventListener('resize', fit);
+  fit();
+  hideFrameScrollbar();
+})();
+</script>
+</body>
+</html>
