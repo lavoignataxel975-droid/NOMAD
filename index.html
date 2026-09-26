@@ -14,7 +14,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Black&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/style.css?v=20260926">
 </head>
 <body>
 <div class="page">
@@ -28,6 +28,7 @@
     <div class="header-menu" id="headerMenu">
       <nav class="header-nav" aria-label="Navigation principale">
         <a href="#top" data-close-pages>Accueil</a>
+        <a href="click-and-collect.html">Click &amp; Collect</a>
         <button type="button" data-open="carte">La carte</button>
         <button type="button" data-open="gallery">Photos</button>
       </nav>
@@ -51,7 +52,13 @@
     <!-- ============ 2. INTRO ============ -->
     <section class="intro">
       <div class="intro-text">
-        <h1>Pastrami<br>maison</h1>
+        <h1 class="sr-only">NOMAD, pastrami maison à Montpellier</h1>
+        <a href="click-and-collect.html" class="cc-cta">
+          <span class="cc-cta-title">Click &amp; Collect</span>
+          <span class="cc-cta-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </span>
+        </a>
         <div class="rule rule--intro"></div>
         <p>Sandwichs, buns, rolls et kroks garnis de notre pastrami de bœuf fait maison. Sauces, pickles et oignons confits aussi, tout est préparé sur place.</p>
         <div class="btn-row">
@@ -157,6 +164,7 @@
 
   <!-- ============ LIGHTBOX ============ -->
   <div class="lightbox" id="lightbox" role="dialog" aria-label="Photo agrandie" hidden>
+    <button type="button" class="lb-arrow lb-close" id="lbClose" aria-label="Fermer">✕</button>
     <button type="button" class="lb-arrow" id="lbPrev" aria-label="Photo précédente">←</button>
     <img id="lbImg" src="" alt="">
     <button type="button" class="lb-arrow" id="lbNext" aria-label="Photo suivante">→</button>
@@ -164,7 +172,8 @@
 
 </div>
 
-<script src="js/data.js"></script>
-<script src="js/main.js"></script>
+<script src="js/horaires.js?v=20260926"></script>
+<script src="js/data.js?v=20260926"></script>
+<script src="js/main.js?v=20260926"></script>
 </body>
 </html>

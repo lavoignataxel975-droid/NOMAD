@@ -1,0 +1,170 @@
+/* =========================================================
+   NOMAD — Click & Collect : carte, panier, formulaire
+   ========================================================= */
+
+.cc-order {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--pad-x) clamp(56px, 7vw, 96px);
+  scroll-margin-top: 80px;
+}
+.cc-order .title-block { display: flex; flex-direction: column; gap: 14px; margin-bottom: 28px; }
+.cc-order [hidden] { display: none !important; }
+.cc-muted { margin: 0; font-size: 14px; color: var(--red); opacity: .75; }
+
+.cc-order-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 380px);
+  gap: clamp(24px, 4vw, 48px);
+  align-items: start;
+}
+
+/* ---------- Carte ---------- */
+.cc-menu .tabs { margin-bottom: 20px; }
+.cc-products { display: grid; gap: 12px; }
+.cc-product {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px 16px;
+  align-items: center;
+  padding: 16px 18px;
+  border: 2px solid rgba(181, 18, 27, .18);
+  border-radius: 20px;
+}
+.cc-product-name { margin: 0; font-family: var(--f-title); font-weight: 400; font-size: 24px; line-height: 1.1; text-transform: uppercase; }
+.cc-product-price { font-weight: 700; margin-left: 8px; font-family: var(--f-text); font-size: 16px; }
+.cc-product-desc { margin: 0; grid-column: 1; font-size: 13px; line-height: 1.5; opacity: .8; }
+.cc-product-opt { grid-column: 1; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+.cc-product-opt input { width: 18px; height: 18px; accent-color: var(--red); }
+.cc-add {
+  grid-column: 2;
+  grid-row: 1 / span 3;
+  border: 0;
+  cursor: pointer;
+  border-radius: 999px;
+  background: var(--red);
+  color: var(--white);
+  font-weight: 700;
+  font-size: 15px;
+  padding: 10px 18px;
+  min-height: 44px;
+  transition: background .2s, transform .15s;
+}
+.cc-add:hover { background: var(--navy); }
+.cc-add:active { transform: scale(.95); }
+.cc-add.is-added { background: var(--stem); }
+
+.cc-product.cc-krok { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.cc-krok .cc-product-name, .cc-krok .cc-product-desc { grid-column: 1 / -1; }
+.cc-krok .cc-add { grid-column: 1 / -1; grid-row: auto; justify-self: start; }
+@media (max-width: 560px) { .cc-product.cc-krok { grid-template-columns: 1fr; } }
+
+/* ---------- Panier ---------- */
+.cc-cart {
+  position: sticky;
+  top: 88px;
+  border: 3px solid var(--red);
+  border-radius: 28px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  scroll-margin-top: 80px;
+}
+.cc-cart h3 { margin: 0; font-family: var(--f-title); font-weight: 400; font-size: 32px; text-transform: uppercase; }
+.cc-lines { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; max-height: 320px; overflow: auto; }
+.cc-line { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; font-size: 15px; }
+.cc-line-name { font-weight: 700; }
+.cc-line-extra { grid-column: 1; font-size: 13px; opacity: .8; }
+.cc-line-price { font-weight: 700; text-align: right; }
+.cc-qty { grid-column: 1 / -1; display: inline-flex; align-items: center; gap: 10px; }
+.cc-qty button {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--red);
+  background: none;
+  color: var(--red);
+  font-weight: 700;
+  cursor: pointer;
+  line-height: 1;
+}
+.cc-qty button:hover { background: var(--red); color: var(--white); }
+.cc-qty span { min-width: 20px; text-align: center; font-weight: 700; }
+.cc-total { display: flex; justify-content: space-between; align-items: baseline; border-top: 2px solid var(--red); padding-top: 12px; font-weight: 700; }
+.cc-total strong { font-family: var(--f-title); font-weight: 400; font-size: 32px; }
+
+/* ---------- Formulaire ---------- */
+#ccForm { display: flex; flex-direction: column; gap: 12px; }
+.cc-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+#ccForm label, .cc-krok label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 700; }
+.cc-order input, .cc-order select {
+  font: inherit;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--navy);
+  padding: 10px 14px;
+  border: 2px solid rgba(181, 18, 27, .35);
+  border-radius: 14px;
+  background: var(--white);
+  min-height: 46px;
+  width: 100%;
+}
+.cc-order input:focus, .cc-order select:focus { outline: none; border-color: var(--navy); }
+.cc-order [aria-invalid="true"] { border-color: var(--red); background: #FDECEC; }
+.cc-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.cc-error { margin: 0; padding: 10px 14px; border-radius: 14px; background: #FDECEC; font-size: 14px; font-weight: 600; }
+.cc-submit { border: 0; cursor: pointer; font-size: 17px; }
+.cc-submit[disabled] { opacity: .5; cursor: not-allowed; }
+.cc-note { text-align: center; }
+
+/* ---------- Confirmation ---------- */
+.cc-done {
+  max-width: 560px;
+  margin: 0 auto;
+  text-align: center;
+  border: 3px solid var(--red);
+  border-radius: 28px;
+  padding: clamp(28px, 5vw, 48px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.cc-done:focus { outline: none; }
+.cc-done h3 { margin: 0; font-family: var(--f-title); font-weight: 400; font-size: clamp(36px, 6vw, 56px); line-height: 1; text-transform: uppercase; }
+.cc-done p { margin: 0; }
+.cc-done-kicker { font-weight: 700; }
+.cc-done-time { font-size: 22px; font-weight: 700; color: var(--navy); }
+.cc-done .btn { margin-top: 10px; background: none; cursor: pointer; }
+
+/* ---------- Barre mobile ---------- */
+.cc-bar { display: none; }
+
+@media (max-width: 860px) {
+  .cc-order-grid { grid-template-columns: 1fr; }
+  .cc-cart { position: static; }
+  .cc-bar:not([hidden]):not(.is-off) {
+    display: flex;
+    position: fixed;
+    left: 12px; right: 12px; bottom: 12px;
+    z-index: 70;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 20px;
+    border-radius: 999px;
+    background: var(--red);
+    color: var(--white);
+    font-weight: 600;
+    font-size: 14px;
+    box-shadow: 0 10px 30px -10px rgba(11, 20, 40, .5);
+  }
+  .cc-bar:hover { color: var(--white); }
+  .cc-bar strong { font-size: 16px; }
+  .cc-order { padding-bottom: 96px; }
+}
+@media (max-width: 420px) {
+  .cc-row { grid-template-columns: 1fr; }
+  .cc-product { grid-template-columns: 1fr; }
+  .cc-add { grid-column: 1; grid-row: auto; justify-self: start; }
+}

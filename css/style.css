@@ -305,6 +305,77 @@ button { font: inherit; }
   text-wrap: pretty;
 }
 .btn-row { display: flex; gap: 12px; flex-wrap: wrap; }
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* CTA Click & Collect (à la place du titre de l'intro) */
+@keyframes ccShine { 0%, 55% { transform: translateX(-120%) skewX(-20deg); } 100% { transform: translateX(420%) skewX(-20deg); } }
+@keyframes ccNudge { 0%, 60%, 100% { transform: translateX(0); } 75% { transform: translateX(6px); } }
+@keyframes ccGlow { 0%, 100% { box-shadow: 0 14px 34px -14px rgba(181,18,27,.7); } 50% { box-shadow: 0 18px 44px -12px rgba(181,18,27,.95); } }
+
+.cc-cta {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  gap: clamp(14px, 1.6vw, 22px);
+  padding: 10px 10px 10px clamp(26px, 3vw, 40px);
+  border-radius: 999px;
+  background: linear-gradient(135deg, #D0161F 0%, var(--red) 55%, #8E0E15 100%);
+  color: var(--white);
+  animation: ccGlow 3s ease-in-out infinite;
+  transition: transform .25s cubic-bezier(.2,.8,.2,1), background .25s;
+}
+.cc-cta::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 25%;
+  z-index: -1;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.3), transparent);
+  animation: ccShine 3.6s ease-in-out infinite;
+}
+.cc-cta:hover { color: var(--white); background: var(--navy); transform: translateY(-3px) scale(1.02); }
+.cc-cta:active { transform: translateY(0) scale(.98); }
+
+.cc-cta-title {
+  font-family: var(--f-title);
+  font-size: clamp(40px, 4.6vw, 64px);
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.cc-cta-arrow {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: clamp(56px, 5.6vw, 76px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--white);
+  color: var(--red);
+  transition: color .25s, transform .25s;
+}
+.cc-cta-arrow svg { animation: ccNudge 2.4s ease-in-out infinite; }
+.cc-cta:hover .cc-cta-arrow { color: var(--navy); transform: rotate(-45deg); }
+
+@media (max-width: 640px) {
+  .cc-cta { padding: 8px 8px 8px 24px; }
+  .cc-cta-title { font-size: 34px; }
+  .cc-cta-arrow { width: 50px; }
+  .cc-cta-arrow svg { width: 22px; height: 22px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cc-cta, .cc-cta-arrow svg { animation: none; }
+  .cc-cta::before { display: none; }
+}
+
 .intro-photo {
   width: 100%;
   height: auto;
@@ -624,6 +695,7 @@ button { font: inherit; }
   font-size: clamp(17px, 1.5vw, 21px);
   font-weight: 500;
 }
+.hours-time { text-align: right; white-space: nowrap; }
 
 .footer-bottom {
   padding: clamp(20px, 3vw, 40px) clamp(16px, 4vw, 56px) 20px;
@@ -794,10 +866,56 @@ button { font: inherit; }
   transition: background .2s, color .2s;
 }
 .lb-arrow:hover { background: var(--white); color: var(--navy); }
+.lb-close {
+  position: absolute;
+  top: calc(14px + env(safe-area-inset-top));
+  right: 14px;
+  font-size: 18px;
+}
 
 @media (max-width: 640px) {
   .lightbox { flex-wrap: wrap; align-content: center; }
   .lightbox img { order: -1; flex-basis: 100%; max-height: 75svh; }
+}
+
+/* =========================================================
+   RESPONSIVE — mobile & tablette
+   ========================================================= */
+/* Zones tactiles d'au moins 44 px, sans changer l'apparence */
+.logo,
+.header-nav a, .header-nav button,
+.footer-nav a, .footer-nav button,
+.footer-address a, .footer-bar a { position: relative; }
+.logo::after,
+.header-nav a::after, .header-nav button::after,
+.footer-nav a::after, .footer-nav button::after,
+.footer-address a::after, .footer-bar a::after {
+  content: '';
+  position: absolute;
+  inset: -12px -8px;
+}
+.footer-address a::after { inset: -8px 0; }
+.burger { width: 44px; height: 44px; padding: 11px 9px; }
+
+/* Très petits écrans : l'en-tête d'un produit reste sur une ligne */
+@media (max-width: 400px) {
+  .menu-item-head { gap: 10px; flex-wrap: nowrap; }
+  .menu-name { min-width: 0; flex: 0 1 auto; padding: 8px 20px; font-size: 17px; }
+  .spice svg { width: 13px; height: 18px; }
+}
+
+/* Tablette (portrait) : carte et pied de page sur deux colonnes */
+@media (min-width: 700px) and (max-width: 1023px) {
+  .menu-grid { grid-template-columns: 1fr 1fr; gap: 36px 32px; }
+  .menu-name { min-width: 0; padding: 8px 22px; }
+  .footer-top { grid-template-columns: 1fr 1fr; }
+  .footer-col { padding-left: var(--pad-x); padding-right: var(--pad-x); }
+}
+
+/* Mobile & tablette : le pied de page prend la hauteur de son contenu */
+@media (max-width: 900px) {
+  .footer { min-height: 0; }
+  .footer-bottom { padding-bottom: 24px; }
 }
 
 /* =========================================================

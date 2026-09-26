@@ -1,7 +1,7 @@
 /* =========================================================
    NOMAD — Contenu du site
    Modifiez ce fichier pour mettre à jour la carte, les prix,
-   les avis, les horaires et les photos.
+   les avis et les photos (horaires : js/horaires.js).
    ========================================================= */
 
 const P = 'Pastrami de bœuf';
@@ -84,10 +84,4 @@ const REVIEWS = [
   { name: 'Prénom N.', text: 'Meilleur sandwich de Montpellier. Le Chèvre miel est une tuerie, on reviendra !' }
 ];
 
-/* À COMPLÉTER */
-const HOURS = [
-  { day: 'Lundi', time: 'À compléter' },
-  { day: 'Mardi – Vendredi', time: 'À compléter' },
-  { day: 'Samedi', time: 'À compléter' },
-  { day: 'Dimanche', time: 'À compléter' }
-];
+/* Horaires : voir js/horaires.js (source unique, aussi utilisée par le Click & Collect) */

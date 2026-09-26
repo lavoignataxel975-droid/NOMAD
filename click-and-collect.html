@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Click &amp; Collect — NOMAD · Montpellier</title>
+<meta name="description" content="Commandez vos sandwichs NOMAD en ligne et récupérez-les au 7 Rue du Puits du Temple, Montpellier.">
+<meta name="theme-color" content="#B5121B">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Black&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css?v=20260926">
+<link rel="stylesheet" href="css/click-collect.css?v=20260926">
+<style>
+  .cc-hero {
+    background: var(--red);
+    color: var(--white);
+    padding: clamp(32px, 6vw, 80px) var(--pad-x);
+    text-align: center;
+    min-height: calc(100svh - var(--hdr-h));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .cc-hero h1 {
+    margin: 0;
+    font-family: var(--f-title);
+    font-weight: 400;
+    font-size: clamp(56px, 11vw, 150px);
+    line-height: .9;
+    text-transform: uppercase;
+  }
+  .cc-hero p { margin: 20px auto 0; max-width: 40ch; font-size: 18px; line-height: 1.6; }
+  @keyframes ccBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
+  @keyframes ccHalo { 0% { box-shadow: 0 0 0 0 rgba(255,255,255,.55); } 100% { box-shadow: 0 0 0 22px rgba(255,255,255,0); } }
+  .cc-soon {
+    display: inline-flex;
+    align-items: center;
+    gap: clamp(14px, 1.6vw, 22px);
+    margin-top: clamp(28px, 4vw, 44px);
+    padding: 10px 10px 10px clamp(28px, 3.4vw, 44px);
+    border-radius: 999px;
+    background: var(--white);
+    color: var(--red);
+    font-family: var(--f-title);
+    font-size: clamp(34px, 4.4vw, 60px);
+    line-height: 1;
+    text-transform: uppercase;
+    animation: ccHalo 2.2s ease-out infinite;
+    transition: transform .25s cubic-bezier(.2,.8,.2,1), background .25s, color .25s;
+  }
+  .cc-soon:hover { background: var(--navy); color: var(--white); transform: translateY(-3px) scale(1.03); }
+  .cc-soon-arrow {
+    display: grid;
+    place-items: center;
+    width: clamp(52px, 5.4vw, 74px);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--red);
+    color: var(--white);
+    transition: background .25s;
+  }
+  .cc-soon:hover .cc-soon-arrow { background: var(--white); color: var(--navy); }
+  .cc-soon-arrow svg { animation: ccBounce 1.6s ease-in-out infinite; }
+  @media (prefers-reduced-motion: reduce) {
+    .cc-soon, .cc-soon-arrow svg { animation: none; }
+  }
+  .cc-steps {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: clamp(48px, 7vw, 96px) var(--pad-x);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+    gap: 24px;
+    list-style: none;
+    counter-reset: step;
+  }
+  .cc-steps li {
+    counter-increment: step;
+    border: 3px solid var(--red);
+    border-radius: 28px;
+    padding: 28px;
+  }
+  .cc-steps li::before {
+    content: counter(step);
+    display: block;
+    font-family: var(--f-title);
+    font-size: 64px;
+    line-height: 1;
+    color: var(--red);
+  }
+  .cc-steps h2 { margin: 12px 0 8px; font-family: var(--f-title); font-weight: 400; font-size: 32px; text-transform: uppercase; }
+  .cc-steps p { margin: 0; font-size: 16px; line-height: 1.6; }
+  .cc-where {
+    text-align: center;
+    padding: 0 var(--pad-x) clamp(64px, 8vw, 110px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+  }
+  .cc-where address { font-style: normal; font-size: 18px; line-height: 1.6; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="site-header" id="siteHeader">
+    <a href="index.html" class="logo">NOMAD</a>
+    <button class="burger" id="burger" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="headerMenu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="header-menu" id="headerMenu">
+      <nav class="header-nav" aria-label="Navigation principale">
+        <a href="index.html">Accueil</a>
+        <a href="click-and-collect.html" aria-current="page">Click &amp; Collect</a>
+        <a href="index.html#carte">La carte</a>
+        <a href="index.html#photos">Photos</a>
+      </nav>
+      <a href="index.html#infos" class="header-cta">Nous trouver</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="cc-hero">
+      <h1>Click &amp;<br>Collect</h1>
+      <p>Commande ton sandwich en ligne, passe le récupérer au comptoir. Pas d'attente, c'est prêt quand tu arrives.</p>
+      <a href="#commander" class="cc-soon">Commander<span class="cc-soon-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg></span></a>
+    </section>
+
+    <ol class="cc-steps">
+      <li><h2>Choisis</h2><p>Sandwich, bun, roll ou krok : compose ta commande depuis la carte.</p></li>
+      <li><h2>Commande</h2><p>Indique ton heure de passage et valide en quelques clics.</p></li>
+      <li><h2>Récupère</h2><p>Ta commande t'attend au comptoir, chaude et prête à partir.</p></li>
+    </ol>
+
+    <!-- ============ COMMANDE (carte + panier + formulaire) ============ -->
+    <section class="cc-order" id="commander" aria-labelledby="orderTitle">
+      <div class="title-block">
+        <h2 class="section-title" id="orderTitle">Commander</h2>
+        <div class="rule"></div>
+      </div>
+
+      <div class="cc-order-grid" id="ccOrder">
+        <div class="cc-menu">
+          <div class="tabs" role="tablist" aria-label="Catégories" id="ccTabs"></div>
+          <div id="ccProducts" role="tabpanel" aria-live="polite"><p class="cc-muted">Chargement de la carte…</p></div>
+        </div>
+
+        <aside class="cc-cart" id="ccCart" aria-labelledby="cartTitle">
+          <h3 id="cartTitle">Ma commande</h3>
+          <ul class="cc-lines" id="ccLines"></ul>
+          <p class="cc-muted" id="ccEmpty">Ton panier est vide.</p>
+          <div class="cc-total"><span>Total</span><strong id="ccTotal">0,00 €</strong></div>
+
+          <form id="ccForm" novalidate>
+            <div class="cc-row">
+              <label>Prénom<input name="firstName" autocomplete="given-name" maxlength="50" required></label>
+              <label>Nom<input name="lastName" autocomplete="family-name" maxlength="50" required></label>
+            </div>
+            <label>Téléphone<input name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="06 12 34 56 78" required></label>
+            <label>Heure de retrait<select name="pickupTime" id="ccSlots" required><option value="">Chargement…</option></select></label>
+            <p class="cc-muted cc-slot-msg" id="ccSlotMsg" hidden></p>
+            <label class="cc-hp" aria-hidden="true">Site web<input name="website" tabindex="-1" autocomplete="off"></label>
+            <p class="cc-error" id="ccError" role="alert" hidden></p>
+            <button type="submit" class="btn btn--solid cc-submit" id="ccSubmit">Valider la commande</button>
+            <p class="cc-muted cc-note">Règlement au comptoir lors du retrait.</p>
+          </form>
+        </aside>
+      </div>
+
+      <div class="cc-done" id="ccDone" hidden tabindex="-1">
+        <p class="cc-done-kicker">Merci <span id="doneName"></span> !</p>
+        <h3 id="doneRef">Commande #000 confirmée</h3>
+        <p class="cc-done-time" id="doneTime">Retrait prévu à 00h00</p>
+        <p id="doneTotal"></p>
+        <p class="cc-muted">7 Rue du Puits du Temple, 34000 Montpellier</p>
+        <button type="button" class="btn btn--outline" id="ccAgain">Nouvelle commande</button>
+      </div>
+    </section>
+
+    <!-- Barre mobile : accès rapide au panier -->
+    <a href="#ccCart" class="cc-bar" id="ccBar" hidden><span id="ccBarCount">0 article</span><strong id="ccBarTotal">0,00 €</strong><span>Ma commande →</span></a>
+
+    <section class="cc-where">
+      <address><strong>7 Rue du Puits du Temple</strong><br>34000 Montpellier</address>
+      <div class="btn-row">
+        <a href="index.html#carte" class="btn btn--solid">Voir la carte</a>
+        <a href="https://maps.app.goo.gl/72hZZ28Cx7BQtt2dA" target="_blank" rel="noopener" class="btn btn--outline">Itinéraire</a>
+      </div>
+    </section>
+  </main>
+
+</div>
+<script>
+  /* En-tête : hauteur réelle (hero plein écran) + menu burger mobile */
+  (function () {
+    const header = document.getElementById('siteHeader');
+    const burger = document.getElementById('burger');
+    const setH = () => document.documentElement.style.setProperty('--hdr-h', header.offsetHeight + 'px');
+    const setMenu = open => {
+      header.classList.toggle('menu-open', open);
+      burger.setAttribute('aria-expanded', String(open));
+      burger.setAttribute('aria-label', open ? 'Fermer le menu' : 'Ouvrir le menu');
+    };
+    burger.addEventListener('click', () => setMenu(!header.classList.contains('menu-open')));
+    header.addEventListener('click', e => { if (e.target.closest('.header-menu a')) setMenu(false); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') setMenu(false); });
+    setH();
+    window.addEventListener('resize', () => { if (!header.classList.contains('menu-open')) setH(); });
+  })();
+</script>
+<script src="js/click-collect.js?v=20260926"></script>
+</body>
+</html>

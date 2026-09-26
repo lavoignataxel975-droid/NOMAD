@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NOMAD — Aperçu mobile &amp; tablette</title>
+<meta name="description" content="Rendu réel du site NOMAD sur iPhone et iPad.">
+<meta name="robots" content="noindex">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Black&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --c1: #B5121B;
+    --c1-d: #7a0b11;
+    --c2: #FFFFFF;
+    --c3: #FFFFFF;
+    --c2-60: rgba(255, 255, 255, 0.78);
+    --c2-40: rgba(255, 255, 255, 0.62);
+    --line:  rgba(255, 255, 255, 0.2);
+    --line-2:rgba(255, 255, 255, 0.35);
+    --f-logo:  'Archivo Black', sans-serif;
+    --f-title: 'Anton', sans-serif;
+    --f-body:  'Poppins', system-ui, sans-serif;
+    --f-label: 'Anton', sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background:
+      radial-gradient(1100px 600px at 50% -12%, rgba(255, 255, 255, 0.12), transparent 62%),
+      linear-gradient(165deg, #c4161f, var(--c1-d));
+    color: var(--c2);
+    font-family: var(--f-body);
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+  button, select { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--c3); outline-offset: 3px; }
+
+  /* ---------- En-tête ---------- */
+  .head {
+    display: flex; align-items: center; gap: 16px;
+    padding: 22px clamp(16px, 3vw, 34px) 0;
+  }
+  .head__logo { font-family: var(--f-logo); font-size: 30px; letter-spacing: -0.03em; line-height: 1; }
+  .head h1 {
+    margin: 0;
+    font-family: var(--f-title); font-weight: 400;
+    font-size: clamp(19px, 2.2vw, 26px);
+    text-transform: uppercase; letter-spacing: 0.02em; line-height: 1;
+  }
+  .head p { margin: 5px 0 0; font-size: 13px; color: var(--c2-60); }
+  .head__spacer { flex: 1; }
+  .head__live {
+    display: inline-flex; align-items: center; gap: 9px;
+    font-family: var(--f-label); font-size: 13px;
+    letter-spacing: 0.18em; text-transform: uppercase; color: var(--c2-60);
+    border: 1px solid var(--line-2); border-radius: 999px; padding: 8px 15px 6px;
+    transition: background 0.25s, color 0.25s;
+  }
+  .head__live:hover { background: var(--c2); color: var(--c1); }
+  .head__live i { width: 7px; height: 7px; border-radius: 50%; background: #5fd07f; }
+  @media (max-width: 720px) { .head__live { display: none; } }
+
+  /* ---------- Barre de contrôle ---------- */
+  .bar {
+    position: sticky; top: 0; z-index: 30;
+    margin: 18px clamp(16px, 3vw, 34px) 0;
+    padding: 10px 12px;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px;
+    background: rgba(122, 11, 17, 0.72);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+  }
+  .grp { display: flex; align-items: center; gap: 7px; }
+  .grp > b {
+    font-family: var(--f-label); font-weight: 400; font-size: 12px;
+    letter-spacing: 0.22em; text-transform: uppercase; color: var(--c2-40);
+  }
+  select {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--line-2); border-radius: 9px;
+    padding: 8px 32px 8px 12px; font-size: 14px; cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23ffffff' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 11px center; background-size: 11px;
+  }
+  select option { background: #fff; color: #111; }
+  .seg { display: flex; gap: 4px; padding: 4px; background: rgba(255, 255, 255, 0.08); border-radius: 999px; }
+  .seg button {
+    background: none; border: 0; cursor: pointer;
+    padding: 7px 14px 6px; border-radius: 999px;
+    font-family: var(--f-label); font-size: 14px;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--c2-60);
+    white-space: nowrap; transition: background 0.25s, color 0.25s;
+  }
+  .seg button:hover { color: var(--c2); }
+  .seg button[aria-pressed="true"] { background: var(--c2); color: var(--c1); }
+  .bar__spacer { flex: 1; }
+  .ghost {
+    background: none; border: 1px solid var(--line-2); border-radius: 9px;
+    padding: 8px 14px; font-size: 13px; cursor: pointer;
+    transition: border-color 0.25s, background 0.25s;
+  }
+  .ghost:hover { border-color: var(--c3); background: rgba(255, 255, 255, 0.12); }
+
+  /* ---------- Scène ---------- */
+  .stage {
+    display: flex; flex-wrap: nowrap; align-items: flex-start; justify-content: center;
+    gap: clamp(20px, 4vw, 64px);
+    padding: clamp(22px, 3.5vw, 44px) clamp(16px, 3vw, 34px) 30px;
+  }
+
+  .dev { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .dev__box { position: relative; }
+  .dev__scale { position: absolute; top: 0; left: 0; padding: 13px; transform-origin: top left; }
+
+  .dev__shell {
+    position: relative;
+    background: #0b0b0d;
+    border-radius: var(--r);
+    padding: var(--bez);
+    box-shadow:
+      0 0 0 2px #3c3c41,
+      0 0 0 11px #17171a,
+      0 0 0 12.5px #34343a,
+      0 46px 90px -24px rgba(0, 0, 0, 0.85);
+  }
+  .dev__screen {
+    position: relative;
+    width: var(--w); height: var(--h);
+    border-radius: calc(var(--r) - var(--bez));
+    overflow: hidden;
+    background: var(--c1);
+  }
+  .dev__screen iframe { width: 100%; height: 100%; border: 0; display: block; background: #fff; }
+
+  /* Barre d'état (iPhone, portrait) : le site commence dessous, comme dans Safari */
+  .dev__status {
+    position: absolute; top: 0; left: 0; right: 0; height: 54px; z-index: 4;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 4px 30px 0 36px; pointer-events: none;
+    font: 600 16px/1 -apple-system, system-ui, sans-serif;
+    background: var(--sb-bg, #B5121B); color: var(--sb-fg, #fff);
+  }
+  .dev__status i { display: inline-flex; gap: 5px; align-items: center; font-style: normal; }
+  .dev__status i::before { content: ''; width: 17px; height: 11px; border-radius: 2px; background:
+    linear-gradient(currentColor, currentColor) 0 100% / 3px 40% no-repeat,
+    linear-gradient(currentColor, currentColor) 4.5px 100% / 3px 60% no-repeat,
+    linear-gradient(currentColor, currentColor) 9px 100% / 3px 80% no-repeat,
+    linear-gradient(currentColor, currentColor) 13.5px 100% / 3px 100% no-repeat; }
+  .dev__status i::after { content: ''; width: 24px; height: 11px; border-radius: 3px; border: 1.5px solid currentColor;
+    background: linear-gradient(currentColor, currentColor) 1.5px 50% / 70% 6px no-repeat; }
+  .dev__screen.has-status iframe { height: calc(100% - 54px); margin-top: 54px; }
+
+  /* Dynamic Island (iPhone, portrait) */
+  .dev__island {
+    position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+    width: 118px; height: 33px; border-radius: 20px;
+    background: #000; z-index: 5; pointer-events: none;
+  }
+  /* Barre d'accueil */
+  .dev__home {
+    position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%);
+    width: 34%; max-width: 145px; height: 5px; border-radius: 3px;
+    background: rgba(255, 255, 255, 0.5); z-index: 5; pointer-events: none;
+  }
+  /* Boutons latéraux (iPhone) */
+  .dev--phone .dev__shell::before,
+  .dev--phone .dev__shell::after {
+    content: ''; position: absolute; background: #34343a; border-radius: 3px;
+  }
+  .dev--phone .dev__shell::before {
+    left: -15px; top: 17%; width: 3.5px; height: 30px;
+    box-shadow: 0 54px 0 #34343a, 0 104px 0 #34343a;
+  }
+  .dev--phone .dev__shell::after { right: -15px; top: 21%; width: 3.5px; height: 92px; }
+  /* Caméra frontale (iPad) : dans la bordure, bord long en paysage */
+  .dev--tablet .dev__shell::before {
+    content: ''; position: absolute;
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #23232a; box-shadow: inset 0 0 0 1px #45454d;
+    top: 4px; left: 50%; transform: translateX(-50%);
+  }
+  .dev--tablet .dev__shell[data-land="true"]::before {
+    top: 50%; left: 4px; transform: translateY(-50%);
+  }
+
+  .dev figcaption { text-align: center; }
+  .dev__name {
+    font-family: var(--f-label); font-size: 16px;
+    letter-spacing: 0.16em; text-transform: uppercase; color: var(--c2);
+  }
+  .dev__size { display: block; margin-top: 2px; font-size: 12px; color: var(--c2-40); }
+
+  /* ---------- Note ---------- */
+  .note {
+    margin: 0 auto 40px;
+    max-width: 760px;
+    padding: 0 clamp(16px, 3vw, 34px);
+    text-align: center;
+    font-size: 13px; line-height: 1.65; color: var(--c2-40);
+  }
+  .note b { color: var(--c2-60); font-weight: 600; }
+
+  @media (max-width: 860px) {
+    .stage { flex-wrap: wrap; }
+    .bar__spacer { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<header class="head">
+  <span class="head__logo" aria-hidden="true">NOMAD</span>
+  <div>
+    <h1>Aperçu mobile &amp; tablette</h1>
+    <p>Le site réel, affiché aux dimensions exactes d'un iPhone et d'un iPad.</p>
+  </div>
+  <span class="head__spacer"></span>
+  <a class="head__live" id="live" href="index.html" target="_blank" rel="noopener"><i></i> Ouvrir le site ↗</a>
+</header>
+
+<div class="bar">
+  <div class="grp">
+    <b>Version</b>
+    <select id="page" aria-label="Version du site">
+      <option value="index.html">V1 — site actuel</option>
+      <option value="v2/index.html">V2 — expérimentale</option>
+    </select>
+  </div>
+
+  <div class="grp">
+    <b>Appareil</b>
+    <div class="seg" id="mode" role="group" aria-label="Appareil affiché">
+      <button type="button" data-mode="both" aria-pressed="true">Les deux</button>
+      <button type="button" data-mode="phone" aria-pressed="false">iPhone</button>
+      <button type="button" data-mode="tablet" aria-pressed="false">iPad</button>
+    </div>
+  </div>
+
+  <div class="grp">
+    <b>Modèle</b>
+    <select id="phone" aria-label="Modèle d'iPhone">
+      <option value="402x874" selected>iPhone 16 Pro</option>
+      <option value="440x956">iPhone 16 Pro Max</option>
+      <option value="393x852">iPhone 16</option>
+      <option value="375x812">iPhone SE / mini</option>
+    </select>
+    <select id="tablet" aria-label="Modèle d'iPad">
+      <option value="820x1180" selected>iPad Air 11″</option>
+      <option value="834x1210">iPad Pro 11″</option>
+      <option value="1032x1376">iPad Pro 13″</option>
+    </select>
+  </div>
+
+  <div class="grp">
+    <b>Sens</b>
+    <div class="seg" id="orient" role="group" aria-label="Orientation">
+      <button type="button" data-orient="portrait" aria-pressed="true">Portrait</button>
+      <button type="button" data-orient="landscape" aria-pressed="false">Paysage</button>
+    </div>
+  </div>
+
+  <span class="bar__spacer"></span>
+  <button class="ghost" type="button" id="reload">↻ Rafraîchir</button>
+</div>
+
+<div class="stage" id="stage"></div>
+
+<p class="note">
+  Chaque écran affiche <b>le site en direct</b>, à la largeur exacte de l'appareil — ce n'est pas une image.
+  Vous pouvez faire défiler (animation du hero comprise), ouvrir le menu, changer d'onglet dans la carte et agrandir les photos comme sur le vrai téléphone.
+  <br>Les maquettes sont réduites pour tenir dans la fenêtre ; les proportions et la mise en page, elles, sont exactes.
+</p>
+
+<script>
+(function () {
+  'use strict';
+
+  var stage   = document.getElementById('stage');
+  var pageSel = document.getElementById('page');
+  var phoneSel= document.getElementById('phone');
+  var tabletSel=document.getElementById('tablet');
+
+  var state = { page: 'index.html', mode: 'both', orient: 'portrait' };
+
+  function dims(sel) {
+    var p = sel.value.split('x');
+    return { w: +p[0], h: +p[1], label: sel.options[sel.selectedIndex].text };
+  }
+
+  // Construit une maquette. Le cadre est rendu à sa taille réelle puis réduit
+  // par transform, afin que la page interne voie bien la vraie largeur CSS.
+  function build(kind, d) {
+    var land = state.orient === 'landscape';
+    var w = land ? d.h : d.w;
+    var h = land ? d.w : d.h;
+    var phone = kind === 'phone';
+
+    var fig = document.createElement('figure');
+    fig.className = 'dev dev--' + kind;
+
+    var box = document.createElement('div');
+    box.className = 'dev__box';
+
+    var scale = document.createElement('div');
+    scale.className = 'dev__scale';
+
+    var shell = document.createElement('div');
+    shell.className = 'dev__shell';
+    shell.style.setProperty('--w', w + 'px');
+    shell.style.setProperty('--h', h + 'px');
+    shell.style.setProperty('--bez', phone ? '11px' : '15px');
+    shell.style.setProperty('--r', phone ? (land ? '52px' : '56px') : '30px');
+
+    var screen = document.createElement('div');
+    screen.className = 'dev__screen';
+
+    var frame = document.createElement('iframe');
+    frame.src = state.page;
+    frame.title = d.label + ' — ' + pageSel.options[pageSel.selectedIndex].text;
+    frame.loading = 'eager';
+    screen.appendChild(frame);
+
+    // L'encoche n'existe qu'en haut de l'écran en portrait.
+    if (phone && !land) {
+      var v2 = state.page.indexOf('v2/') === 0;
+      var sb = document.createElement('div');
+      sb.className = 'dev__status';
+      sb.style.setProperty('--sb-bg', v2 ? '#F4EDE1' : '#B5121B');
+      sb.style.setProperty('--sb-fg', v2 ? '#1C1613' : '#FFFFFF');
+      sb.innerHTML = '<span>9:41</span><i aria-hidden="true"></i>';
+      screen.appendChild(sb);
+      screen.classList.add('has-status');
+      var isl = document.createElement('div');
+      isl.className = 'dev__island';
+      screen.appendChild(isl);
+    }
+    var home = document.createElement('div');
+    home.className = 'dev__home';
+    screen.appendChild(home);
+
+    shell.appendChild(screen);
+
+    // Caméra de l'iPad : bord long en paysage, bord court en portrait.
+    if (!phone) shell.dataset.land = String(land);
+
+    scale.appendChild(shell);
+    box.appendChild(scale);
+
+    var cap = document.createElement('figcaption');
+    cap.innerHTML = '<span class="dev__name">' + d.label + '</span>' +
+                    '<span class="dev__size">' + w + ' × ' + h + ' px</span>';
+
+    fig.appendChild(box);
+    fig.appendChild(cap);
+    return { fig: fig, box: box, scale: scale, shell: shell };
+  }
+
+  var built = [];
+
+  function render() {
+    stage.innerHTML = '';
+    built = [];
+
+    var list = [];
+    if (state.mode === 'both' || state.mode === 'phone')  list.push(['phone',  dims(phoneSel)]);
+    if (state.mode === 'both' || state.mode === 'tablet') list.push(['tablet', dims(tabletSel)]);
+
+    list.forEach(function (it) {
+      var b = build(it[0], it[1]);
+      stage.appendChild(b.fig);
+      built.push(b);
+    });
+
+    fit();
+  }
+
+  // Réduit chaque maquette pour qu'elle tienne dans la fenêtre, sans jamais
+  // l'agrandir au-delà de sa taille réelle.
+  function fit() {
+    if (!built.length) return;
+
+    var styles = getComputedStyle(stage);
+    var gap = parseFloat(styles.columnGap) || 0;
+    var padX = parseFloat(styles.paddingLeft) + parseFloat(styles.paddingRight);
+    var availW = (stage.clientWidth - padX - gap * (built.length - 1)) / built.length;
+    var availH = window.innerHeight - stage.getBoundingClientRect().top - 110;
+
+    built.forEach(function (b) {
+      b.scale.style.transform = 'none';
+      var ow = b.scale.offsetWidth;
+      var oh = b.scale.offsetHeight;
+      var s = Math.min(1, availW / ow, availH / oh);
+      if (!isFinite(s) || s <= 0) s = 1;
+      b.scale.style.transform = 'scale(' + s + ')';
+      b.box.style.width  = Math.round(ow * s) + 'px';
+      b.box.style.height = Math.round(oh * s) + 'px';
+    });
+  }
+
+  function press(box, attr, value) {
+    Array.prototype.forEach.call(box.querySelectorAll('button'), function (b) {
+      b.setAttribute('aria-pressed', String(b.dataset[attr] === value));
+    });
+  }
+
+  pageSel.addEventListener('change', function () {
+    state.page = pageSel.value;
+    document.getElementById('live').href = state.page;
+    render();
+  });
+  phoneSel.addEventListener('change', render);
+  tabletSel.addEventListener('change', render);
+
+  document.getElementById('mode').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    state.mode = b.dataset.mode; press(this, 'mode', state.mode); render();
+  });
+  document.getElementById('orient').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    state.orient = b.dataset.orient; press(this, 'orient', state.orient); render();
+  });
+  document.getElementById('reload').addEventListener('click', render);
+
+  var t;
+  window.addEventListener('resize', function () { clearTimeout(t); t = setTimeout(fit, 120); });
+
+  render();
+})();
+</script>
+</body>
+</html>

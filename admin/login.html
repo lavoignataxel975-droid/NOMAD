@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Connexion — NOMAD back-office</title>
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/admin/assets/admin.css">
+</head>
+<body>
+<div class="login">
+  <form id="loginForm">
+    <h1>NOMAD · Commandes</h1>
+    <label>Nom d’utilisateur<input name="username" autocomplete="username" autocapitalize="none" spellcheck="false" required autofocus></label>
+    <label>Mot de passe<input type="password" name="password" autocomplete="current-password" required></label>
+    <p class="error" id="loginError" role="alert" hidden></p>
+    <button type="submit">Se connecter</button>
+  </form>
+</div>
+<script>
+  document.getElementById('loginForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const err = document.getElementById('loginError');
+    err.hidden = true;
+    try {
+      const r = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: e.target.username.value, password: e.target.password.value })
+      });
+      if (r.ok) return location.replace('/admin/orders');
+      err.textContent = (await r.json()).error || 'Connexion impossible.';
+    } catch (x) {
+      err.textContent = 'Serveur injoignable.';
+    }
+    err.hidden = false;
+  });
+</script>
+</body>
+</html>

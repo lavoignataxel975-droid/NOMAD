@@ -120,8 +120,19 @@
   ).join('');
 
   /* ---------- 7. Horaires ---------- */
+  /* Construits depuis OPENING_HOURS (js/horaires.js), la même source que le Click & Collect :
+     les jours consécutifs aux horaires identiques sont regroupés (« Mercredi – Samedi »). */
+  const DAY_NAMES = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+  const HOURS = [];
+  [1, 2, 3, 4, 5, 6, 0].forEach(d => {
+    const ranges = OPENING_HOURS[d] || [];
+    const key = JSON.stringify(ranges);
+    const last = HOURS[HOURS.length - 1];
+    if (last && last.key === key) { last.to = d; return; }
+    HOURS.push({ key, from: d, to: d, time: ranges.length ? ranges.map(r => r.map(t => t.replace(':', 'h')).join(' – ')) : ['Fermé'] });
+  });
   $('#hours').innerHTML = HOURS.map(h =>
-    '<div class="hours-row"><span>' + esc(h.day) + '</span><span>' + esc(h.time) + '</span></div>'
+    '<div class="hours-row"><span>' + esc(DAY_NAMES[h.from] + (h.to !== h.from ? ' – ' + DAY_NAMES[h.to] : '')) + '</span><span class="hours-time">' + h.time.map(esc).join('<br>') + '</span></div>'
   ).join('');
 
   /* ---------- Page Photos (quinconce) ---------- */
@@ -223,6 +234,17 @@
   lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
   $('#lbPrev').addEventListener('click', () => showPhoto(lb - 1));
   $('#lbNext').addEventListener('click', () => showPhoto(lb + 1));
+  $('#lbClose').addEventListener('click', closeLightbox);
+
+  /* Glisser au doigt pour changer de photo */
+  let touchX = null;
+  lightbox.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; }, { passive: true });
+  lightbox.addEventListener('touchend', e => {
+    if (touchX === null || lb === null) return;
+    const dx = e.changedTouches[0].clientX - touchX;
+    if (Math.abs(dx) > 50) showPhoto(lb + (dx < 0 ? 1 : -1));
+    touchX = null;
+  });
 
   document.addEventListener('keydown', e => {
     if (lb !== null) {
@@ -240,7 +262,7 @@
   (function irisHero() {
     const iris = $('#iris');
     if (!iris || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    document.documentElement.classList.add('iris-on');
+    const root = document.documentElement;
 
     const stage = $('#irisStage');
     const hero = $('.hero', stage);
@@ -257,8 +279,10 @@
     const CLOSE_END = .9;    // diaphragme fermé : intro + bandeau entièrement visibles
 
     let W, H, midW, exitTop, exitBot;
+    let on = false;
 
-    /* L'intro + le bandeau doivent tenir dans un écran : on ajuste la photo */
+    /* L'intro + le bandeau doivent tenir dans un écran : on ajuste la photo.
+       Renvoie false si même sans photo ça ne tient pas (écran trop bas). */
     function fitNext() {
       photo.style.height = '';
       photo.style.display = '';
@@ -270,21 +294,34 @@
         if (h < 140) photo.style.display = 'none';
         else photo.style.height = h + 'px';
       }
+      const fits = intro.offsetHeight <= avail + 1;
       next.classList.remove('is-measuring');
+      return fits;
     }
 
     function measure() {
       W = stage.clientWidth;
       H = stage.clientHeight;
       midW = mid.offsetWidth;
-      const c = el => el.offsetTop + el.offsetHeight / 2;
       /* distance pour que les lignes du haut / du bas sortent du cadre */
       exitTop = top.offsetTop + top.offsetHeight;
       exitBot = H - bot.offsetTop;
-      fitNext();
+      return fitNext();
+    }
+
+    /* Retour à l'affichage normal (hero, intro et bandeau les uns sous les autres) */
+    function reset() {
+      hero.style.clipPath = '';
+      hero.style.removeProperty('--vig');
+      [top, mid, bot].forEach(l => { l.style.transform = ''; l.style.opacity = ''; });
+      next.style.transform = '';
+      ring.style.opacity = '0';
+      photo.style.height = '';
+      photo.style.display = '';
     }
 
     function frame() {
+      if (!on) return;
       const total = iris.offsetHeight - stage.offsetHeight;
       const hh = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hdr-h')) || 64;
       const p = clamp((hh - iris.getBoundingClientRect().top) / total, 0, 1);
@@ -317,7 +354,13 @@
       queued = true;
       requestAnimationFrame(() => { queued = false; frame(); });
     };
-    const remeasure = () => { measure(); frame(); };
+    /* Animation active seulement si l'écran est assez haut (sinon : téléphone en paysage…) */
+    const remeasure = () => {
+      root.classList.add('iris-on');
+      on = measure();
+      if (!on) { root.classList.remove('iris-on'); reset(); }
+      frame();
+    };
     /* Le hero est épinglé : « #top » ne suffit plus pour remonter tout en haut */
     $$('a[href="#top"]').forEach(link => link.addEventListener('click', e => {
       e.preventDefault();

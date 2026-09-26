@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Archives — NOMAD</title>
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/admin/assets/admin.css">
+</head>
+<body>
+<header class="bar">
+  <a class="bar-logo" href="/admin/orders">NOMAD</a>
+  <span class="bar-title">Archives des commandes</span>
+  <nav class="bar-nav">
+    <a href="/admin/orders">Aujourd’hui</a>
+    <a href="/admin/orders/archive" aria-current="page">Archives</a>
+    <button type="button" id="logout">Déconnexion</button>
+  </nav>
+</header>
+
+<main>
+  <form class="search" id="searchForm" role="search">
+    <input type="search" name="q" placeholder="Rechercher : numéro, nom, prénom ou téléphone" aria-label="Rechercher une commande" autocomplete="off">
+    <input type="date" name="day" aria-label="Jour de la commande">
+    <button type="submit" class="btn">Rechercher</button>
+  </form>
+  <p class="count" id="count"></p>
+  <div class="archive-list" id="list"></div>
+</main>
+
+<script src="/admin/assets/common.js"></script>
+<script src="/admin/assets/archive.js"></script>
+</body>
+</html>

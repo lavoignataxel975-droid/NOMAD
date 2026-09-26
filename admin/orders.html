@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Commandes — NOMAD</title>
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/admin/assets/admin.css">
+</head>
+<body>
+<header class="bar">
+  <a class="bar-logo" href="/admin/orders">NOMAD</a>
+  <span class="bar-title">Commandes du jour</span>
+  <span class="bar-date" id="day"></span>
+  <nav class="bar-nav">
+    <span class="live" id="live">Connexion…</span>
+    <a href="/admin/orders" aria-current="page">Aujourd’hui</a>
+    <a href="/admin/orders/archive">Archives</a>
+    <button type="button" id="logout">Déconnexion</button>
+  </nav>
+</header>
+
+<main>
+  <div class="summary" id="summary"></div>
+  <div id="timeline"><p class="empty">Chargement…</p></div>
+  <section class="older" id="older" hidden>
+    <h2>Commandes des jours précédents non archivées</h2>
+    <div class="slot-cards" id="olderList"></div>
+  </section>
+</main>
+
+<script src="/admin/assets/common.js"></script>
+<script src="/admin/assets/orders.js"></script>
+</body>
+</html>
