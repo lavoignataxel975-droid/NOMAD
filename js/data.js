@@ -9,7 +9,10 @@ const J = 'Jambon supérieur de dinde';
 const RED = '#B5121B';
 const NAVY = '#0B2F6E';
 
-/* Chaque produit : [nom, prix, piquant (0 à 5), [ingrédients]] */
+/* PRODUITS : gérés depuis le CMS (/admin/products) et enregistrés dans la base data/nomad.db.
+   La liste ci-dessous a servi d'import initial ; la modifier n'a plus d'effet sur les produits
+   (sauf base vide). Les catégories (titres, couleurs, Krok à composer) restent définies ici.
+   Chaque produit : [nom, prix, piquant (0 à 5), [ingrédients]] */
 const MENU = {
   sandwichs: {
     label: 'Sandwichs', title: 'Nos sandwichs maison', color: RED,

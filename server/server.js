@@ -40,49 +40,153 @@ function parisNow() {
 const toMin = hhmm => { const [h, m] = hhmm.split(':').map(Number); return h * 60 + m; };
 const fmtMin = m => String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
 
-/* ---------- Carte : lue depuis js/data.js (même source que le site) ---------- */
+/* ---------- Carte ----------
+   Produits : table « products » de la base (gérée depuis le CMS /admin/products).
+   js/data.js garde la structure des catégories (titres, couleurs, Krok à composer) et sert
+   d'import initial : au premier lancement, ses produits sont copiés dans la base (mêmes identifiants). */
 const DATA_FILE = path.join(ROOT, 'js', 'data.js');
+const PRODUCT_IMG_DIR = path.join(ROOT, 'assets', 'products');
 let catalog = null;
-let catalogMtime = 0;
+let catalogKey = '';
+let menuVersion = 0;                       // +1 à chaque modification depuis le CMS
 
 const priceCents = s => Math.round(parseFloat(String(s).replace(/[^\d,.]/g, '').replace(',', '.')) * 100);
+const priceText = c => (c % 100 ? (c / 100).toFixed(2).replace('.', ',') : String(c / 100)) + '€'; // format de la carte : « 12€ », « 1,50€ »
 const OPTION_RE = /^Supp\.?\s*(.+?)\s*\+\s*(\d+(?:[.,]\d+)?)\s*€$/i;
 
-function loadCatalog() {
+let fileMenu = null;
+let fileMtime = 0;
+function readFileMenu() {
   const mtime = fs.statSync(DATA_FILE).mtimeMs;
-  if (catalog && mtime === catalogMtime) return catalog;
-  const { MENU } = vm.runInNewContext(fs.readFileSync(DATA_FILE, 'utf8') + '\n;({ MENU })', {});
+  if (!fileMenu || mtime !== fileMtime) {
+    fileMenu = vm.runInNewContext(fs.readFileSync(DATA_FILE, 'utf8') + '\n;({ MENU })', {}).MENU;
+    fileMtime = mtime;
+  }
+  return fileMenu;
+}
+
+/* Catégories qui contiennent des produits (Krok à composer est un produit à part, non géré ici) */
+const productCats = () => Object.entries(readFileMenu()).filter(([, c]) => !c.groups).map(([key, c]) => ({ key, label: c.label }));
+
+function seedProducts() {
+  if (db.products.count() > 0) return;
+  const list = [];
+  for (const [key, cat] of Object.entries(readFileMenu())) {
+    if (cat.groups) continue;
+    cat.items.forEach(([name, price, spice, lines], i) =>
+      list.push({ id: key + '-' + i, cat: key, position: i, name, priceCents: priceCents(price), spice: spice || 0, lines: lines.slice() }));
+  }
+  db.products.seed(list);
+  console.log(`[produits] ${list.length} produits importés depuis js/data.js dans la base`);
+}
+
+/* Carte complète au format de js/data.js (MENU), produits pris dans la base */
+function menuFromDb() {
+  const byCat = new Map();
+  for (const p of db.products.all()) {
+    if (!byCat.has(p.cat)) byCat.set(p.cat, []);
+    byCat.get(p.cat).push(p);
+  }
+  const out = {};
+  for (const [key, cat] of Object.entries(readFileMenu())) {
+    if (cat.groups) { out[key] = cat; continue; }
+    const { items, ...meta } = cat;
+    out[key] = { ...meta, items: (byCat.get(key) || []).map(p => {
+      const item = [p.name, priceText(p.priceCents), p.spice, p.lines];
+      if (p.image) item.push(p.image);
+      return item;
+    }) };
+  }
+  return out;
+}
+
+function loadCatalog() {
+  const key = menuVersion + ':' + fs.statSync(DATA_FILE).mtimeMs;
+  if (catalog && key === catalogKey) return catalog;
   const categories = [];
   const products = new Map();
-  for (const [key, cat] of Object.entries(MENU)) {
-    const c = { key, label: cat.label, products: [] };
+  for (const [catKey, cat] of Object.entries(menuFromDb())) {
+    const c = { key: catKey, label: cat.label, products: [] };
     if (cat.groups) {
       const p = {
-        id: key, cat: cat.label, name: cat.label, priceCents: priceCents(cat.price),
+        id: catKey, cat: cat.label, name: cat.label, priceCents: priceCents(cat.price),
         description: cat.intro || '', options: [],
         choices: cat.groups.map(g => ({ name: g.name, items: g.items.slice() }))
       };
       c.products.push(p);
       products.set(p.id, p);
     } else {
-      cat.items.forEach(([name, price, spice, ingredients], i) => {
+      for (const row of db.products.all().filter(x => x.cat === catKey)) {
         const options = [];
         const desc = [];
-        for (const ing of ingredients) {
+        for (const ing of row.lines) {
           const m = OPTION_RE.exec(ing);
           if (m) options.push({ id: 'opt' + options.length, label: 'Supp. ' + m[1], cents: priceCents(m[2]) });
           else desc.push(ing);
         }
-        const p = { id: key + '-' + i, cat: cat.label, name, priceCents: priceCents(price), spice, description: desc.join(', '), options, choices: [] };
+        const p = { id: row.id, cat: cat.label, name: row.name, priceCents: row.priceCents, spice: row.spice, description: desc.join(', '), options, choices: [], image: row.image };
         c.products.push(p);
         products.set(p.id, p);
-      });
+      }
     }
     categories.push(c);
   }
   catalog = { categories, products };
-  catalogMtime = mtime;
+  catalogKey = key;
   return catalog;
+}
+
+/* js/data.js servi au site : le bloc MENU est remplacé par la carte de la base (le fichier, lui, n'est pas modifié).
+   Si le format du fichier change un jour, le fichier d'origine est servi tel quel. */
+function serveDataJs(req, res) {
+  const src = fs.readFileSync(DATA_FILE, 'utf8');
+  const a = src.indexOf('const MENU = {');
+  const b = a < 0 ? -1 : src.indexOf('\n};', a);
+  if (a < 0 || b < 0) return serveFile(res, DATA_FILE, {}, req);
+  const body = src.slice(0, a) + 'const MENU = ' + JSON.stringify(menuFromDb(), null, 1) + ';' + src.slice(b + 3);
+  const etag = '"' + crypto.createHash('sha1').update(body).digest('base64url').slice(0, 16) + '"';
+  const headers = { 'Cache-Control': 'no-cache', ETag: etag, 'Content-Type': MIME['.js'] };
+  if (req.headers['if-none-match'] === etag) return send(res, 304, '', headers);
+  return send(res, 200, body, headers);
+}
+
+/* ---------- Validation d'un produit (CMS) ---------- */
+function cleanProduct(body) {
+  const errors = {};
+  const name = String(body.name || '').trim().replace(/\s+/g, ' ');
+  const cat = String(body.cat || '');
+  const cents = Math.round(Number(String(body.price ?? '').replace(',', '.').replace(/[^\d.]/g, '')) * 100);
+  const spice = Number(body.spice || 0);
+  const lines = String(body.description || '').split(/\r?\n/).map(l => l.trim().replace(/\s+/g, ' ')).filter(Boolean);
+  if (!name || name.length > 60) errors.name = 'Nom obligatoire (60 caractères maximum).';
+  if (!productCats().some(c => c.key === cat)) errors.cat = 'Catégorie inconnue.';
+  if (!Number.isFinite(cents) || cents < 10 || cents > 50000 || String(body.price ?? '').trim() === '') errors.price = 'Prix invalide (ex. 12 ou 1,50).';
+  if (!Number.isInteger(spice) || spice < 0 || spice > 5) errors.spice = 'Piquant : de 0 à 5.';
+  if (lines.length > 15 || lines.some(l => l.length > 120)) errors.description = 'Description : 15 lignes maximum, 120 caractères par ligne.';
+  if (Object.keys(errors).length) return { errors };
+  return { product: { name, cat, priceCents: cents, spice, lines } };
+}
+
+/* Image envoyée telle quelle (corps binaire), 5 Mo max */
+const IMAGE_TYPES = { 'image/jpeg': '.jpg', 'image/png': '.png', 'image/webp': '.webp' };
+function readImage(req) {
+  return new Promise((resolve, reject) => {
+    const ext = IMAGE_TYPES[(req.headers['content-type'] || '').split(';')[0]];
+    if (!ext) return reject(Object.assign(new Error('Image JPG, PNG ou WebP attendue.'), { status: 415 }));
+    let size = 0;
+    const chunks = [];
+    req.on('data', c => {
+      size += c.length;
+      if (size > 5 * 1024 * 1024) { reject(Object.assign(new Error('Image trop lourde (5 Mo maximum).'), { status: 413 })); req.destroy(); }
+      else chunks.push(c);
+    });
+    req.on('end', () => size ? resolve({ data: Buffer.concat(chunks), ext }) : reject(Object.assign(new Error('Image vide.'), { status: 400 })));
+    req.on('error', reject);
+  });
+}
+function removeImageFile(rel) {
+  if (!rel || !rel.startsWith('assets/products/')) return;
+  fs.unlink(path.join(ROOT, rel), () => {});
 }
 
 /* ---------- Créneaux de retrait ---------- */
@@ -340,6 +444,52 @@ async function adminApi(req, res, pathname, url) {
     return json(res, 200, { order: withFlags(db.setStatus(o.id, status), parisNow()) }, PRIVATE_HEADERS);
   }
 
+  /* ---------- Produits (CMS) : même session que les commandes ---------- */
+  if (req.method === 'GET' && pathname === '/api/admin/products') {
+    return json(res, 200, { categories: productCats(), products: db.products.all() }, PRIVATE_HEADERS);
+  }
+  if (req.method === 'POST' && pathname === '/api/admin/products') {
+    const { errors, product } = cleanProduct(await readJson(req));
+    if (errors) return json(res, 422, { error: Object.values(errors)[0], errors }, PRIVATE_HEADERS);
+    const saved = db.products.create({ ...product, id: 'p-' + crypto.randomBytes(5).toString('hex') });
+    menuVersion++;
+    console.log(`[produits] ajout « ${saved.name} » (${saved.cat})`);
+    return json(res, 201, { product: saved }, PRIVATE_HEADERS);
+  }
+  let pm = /^\/api\/admin\/products\/([\w-]+)$/.exec(pathname);
+  if (pm && (req.method === 'PUT' || req.method === 'DELETE')) {
+    const old = db.products.get(pm[1]);
+    if (!old) return json(res, 404, { error: 'Produit introuvable.' }, PRIVATE_HEADERS);
+    if (req.method === 'DELETE') {
+      db.products.remove(old.id);
+      removeImageFile(old.image);
+      menuVersion++;
+      console.log(`[produits] suppression « ${old.name} »`);
+      return json(res, 200, { ok: true }, PRIVATE_HEADERS);
+    }
+    const { errors, product } = cleanProduct(await readJson(req));
+    if (errors) return json(res, 422, { error: Object.values(errors)[0], errors }, PRIVATE_HEADERS);
+    const saved = db.products.update(old.id, { ...product, image: old.image });
+    menuVersion++;
+    return json(res, 200, { product: saved }, PRIVATE_HEADERS);
+  }
+  pm = /^\/api\/admin\/products\/([\w-]+)\/image$/.exec(pathname);
+  if (pm && (req.method === 'POST' || req.method === 'DELETE')) {
+    const old = db.products.get(pm[1]);
+    if (!old) return json(res, 404, { error: 'Produit introuvable.' }, PRIVATE_HEADERS);
+    let image = null;
+    if (req.method === 'POST') {
+      const { data, ext } = await readImage(req);
+      fs.mkdirSync(PRODUCT_IMG_DIR, { recursive: true });
+      image = 'assets/products/' + old.id + '-' + crypto.randomBytes(4).toString('hex') + ext;
+      fs.writeFileSync(path.join(ROOT, image), data);
+    }
+    const saved = db.products.update(old.id, { cat: old.cat, name: old.name, priceCents: old.priceCents, spice: old.spice, lines: old.lines, image });
+    removeImageFile(old.image);
+    menuVersion++;
+    return json(res, 200, { product: saved }, PRIVATE_HEADERS);
+  }
+
   m = /^\/api\/admin\/orders\/(\d+)$/.exec(pathname);
   if (req.method === 'DELETE' && m) {
     const o = db.get(Number(m[1]));
@@ -357,18 +507,22 @@ async function adminApi(req, res, pathname, url) {
 /* ---------- Pages du back-office ---------- */
 const ADMIN_PAGES = {
   '/admin/orders': 'orders.html',
-  '/admin/orders/archive': 'archive.html'
+  '/admin/orders/archive': 'archive.html',
+  '/admin/products': 'products.html'
 };
+
+/* Page de retour après connexion (?next=) : uniquement une page connue du back-office */
+const safeNext = next => (ADMIN_PAGES[next] ? next : '/admin/orders');
 
 function adminPage(req, res, pathname) {
   const clean = pathname.replace(/\/+$/, '') || '/';
   if (clean === '/admin') return redirect(res, '/admin/orders');
   if (clean === '/admin/login') {
-    if (isAdmin(req)) return redirect(res, '/admin/orders');
+    if (isAdmin(req)) return redirect(res, safeNext(new URL(req.url, 'http://localhost').searchParams.get('next')));
     return serveFile(res, path.join(ADMIN_DIR, 'login.html'), PRIVATE_HEADERS);
   }
   if (ADMIN_PAGES[clean]) {
-    if (!isAdmin(req)) return redirect(res, '/admin/login');
+    if (!isAdmin(req)) return redirect(res, clean === '/admin/orders' ? '/admin/login' : '/admin/login?next=' + encodeURIComponent(clean));
     return serveFile(res, path.join(ADMIN_DIR, ADMIN_PAGES[clean]), PRIVATE_HEADERS);
   }
   /* styles et scripts du back-office (aucune donnée dedans) */
@@ -386,6 +540,7 @@ const server = http.createServer(async (req, res) => {
     if (pathname.startsWith('/api/')) return await publicApi(req, res, pathname);
     if (pathname === '/admin' || pathname.startsWith('/admin/')) return adminPage(req, res, pathname);
     if (req.method !== 'GET' && req.method !== 'HEAD') return send(res, 405, 'Méthode non autorisée');
+    if (pathname === '/js/data.js') return serveDataJs(req, res);   // carte du site = base de données
     return serveStatic(req, res, pathname);
   } catch (e) {
     if (e.status) return json(res, e.status, { error: e.message });
@@ -394,10 +549,13 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
+seedProducts();
+
 server.listen(config.port, () => {
   console.log(`NOMAD → http://localhost:${config.port}`);
   console.log(`Click & Collect → http://localhost:${config.port}/click-and-collect.html`);
   console.log(`Back-office → http://localhost:${config.port}/admin/orders`);
+  console.log(`Produits (CMS) → http://localhost:${config.port}/admin/products`);
   if (FAKE) console.log(`(heure simulée : ${process.env.NOMAD_FAKE_NOW})`);
   if (!process.env.NOMAD_ADMIN_USER || !process.env.NOMAD_ADMIN_PASSWORD) console.log('⚠ Identifiants du back-office par défaut : à changer avant la mise en ligne (NOMAD_ADMIN_USER / NOMAD_ADMIN_PASSWORD).');
 });

@@ -31,6 +31,19 @@ db.exec(`
     token      TEXT PRIMARY KEY,
     expires_at INTEGER NOT NULL
   );
+  -- Produits de la carte (CMS). Remplie au premier lancement depuis js/data.js.
+  CREATE TABLE IF NOT EXISTS products (
+    id           TEXT PRIMARY KEY,            -- ex. « sandwichs-0 » (repris de l'ancienne carte) ou « p-xxxxxx »
+    cat          TEXT NOT NULL,               -- clé de catégorie de js/data.js : sandwichs, buns, rolls, boissons…
+    position     INTEGER NOT NULL,            -- ordre d'affichage dans la catégorie
+    name         TEXT NOT NULL,
+    price_cents  INTEGER NOT NULL,
+    spice        INTEGER NOT NULL DEFAULT 0,  -- piquant 0 à 5
+    lines        TEXT NOT NULL DEFAULT '[]',  -- JSON : ingrédients (« Supp. cheese +2€ » = option payante)
+    image        TEXT,                        -- chemin public, ex. assets/products/xxx.jpg
+    updated_at   TEXT NOT NULL
+  );
+  CREATE INDEX IF NOT EXISTS products_cat ON products (cat, position);
 `);
 
 const STATUSES = ['NOUVELLE', 'EN_PREPARATION', 'PRETE', 'TERMINEE', 'ARCHIVEE'];
@@ -66,7 +79,19 @@ const q = {
   sessionAdd: db.prepare(`INSERT INTO sessions (token, expires_at) VALUES (?, ?)`),
   sessionGet: db.prepare(`SELECT expires_at FROM sessions WHERE token = ?`),
   sessionDel: db.prepare(`DELETE FROM sessions WHERE token = ?`),
-  sessionPurge: db.prepare(`DELETE FROM sessions WHERE expires_at < ?`)
+  sessionPurge: db.prepare(`DELETE FROM sessions WHERE expires_at < ?`),
+  prodAll: db.prepare(`SELECT * FROM products ORDER BY cat, position, name`),
+  prodById: db.prepare(`SELECT * FROM products WHERE id = ?`),
+  prodCount: db.prepare(`SELECT COUNT(*) AS n FROM products`),
+  prodNextPos: db.prepare(`SELECT COALESCE(MAX(position), -1) + 1 AS n FROM products WHERE cat = ?`),
+  prodInsert: db.prepare(`INSERT INTO products (id, cat, position, name, price_cents, spice, lines, image, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`),
+  prodUpdate: db.prepare(`UPDATE products SET cat = ?, position = ?, name = ?, price_cents = ?, spice = ?, lines = ?, image = ?, updated_at = ? WHERE id = ?`),
+  prodDelete: db.prepare(`DELETE FROM products WHERE id = ?`)
+};
+
+const parseProduct = r => r && {
+  id: r.id, cat: r.cat, position: r.position, name: r.name, priceCents: r.price_cents,
+  spice: r.spice, lines: JSON.parse(r.lines), image: r.image || null, updatedAt: r.updated_at
 };
 
 module.exports = {
@@ -129,6 +154,37 @@ module.exports = {
     args.push(limit);
     return db.prepare(`SELECT * FROM orders WHERE ${where.join(' AND ')} ORDER BY day DESC, pickup_time DESC, number DESC LIMIT ?`)
       .all(...args).map(parse);
+  },
+
+  /* ---------- Produits (CMS) ---------- */
+  products: {
+    all: () => q.prodAll.all().map(parseProduct),
+    get: id => parseProduct(q.prodById.get(id)),
+    count: () => q.prodCount.get().n,
+    /* Import initial (une seule fois, base vide) : tout ou rien */
+    seed(list) {
+      db.exec('BEGIN IMMEDIATE');
+      try {
+        if (q.prodCount.get().n === 0) {
+          const now = new Date().toISOString();
+          for (const p of list) q.prodInsert.run(p.id, p.cat, p.position, p.name, p.priceCents, p.spice, JSON.stringify(p.lines), null, now);
+        }
+        db.exec('COMMIT');
+      } catch (e) { db.exec('ROLLBACK'); throw e; }
+    },
+    create(p) {
+      const position = q.prodNextPos.get(p.cat).n;
+      q.prodInsert.run(p.id, p.cat, position, p.name, p.priceCents, p.spice, JSON.stringify(p.lines), p.image || null, new Date().toISOString());
+      return parseProduct(q.prodById.get(p.id));
+    },
+    update(id, p) {
+      const old = q.prodById.get(id);
+      if (!old) return null;
+      const position = old.cat === p.cat ? old.position : q.prodNextPos.get(p.cat).n; // nouvelle catégorie : en fin de liste
+      q.prodUpdate.run(p.cat, position, p.name, p.priceCents, p.spice, JSON.stringify(p.lines), p.image || null, new Date().toISOString(), id);
+      return parseProduct(q.prodById.get(id));
+    },
+    remove: id => q.prodDelete.run(id).changes > 0
   },
 
   sessions: {

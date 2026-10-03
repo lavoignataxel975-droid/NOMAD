@@ -109,6 +109,7 @@
         '</div>';
       }
       return '<div class="cc-product" data-id="' + esc(p.id) + '">' +
+        (p.image ? '<img class="cc-product-img" src="' + esc(p.image) + '" alt="" loading="lazy" width="80" height="80">' : '') +
         '<h3 class="cc-product-name">' + esc(p.name) + '<span class="cc-product-price">' + euro(p.priceCents) + '</span></h3>' +
         (p.description ? '<p class="cc-product-desc">' + esc(p.description) + '</p>' : '') +
         p.options.map(o =>

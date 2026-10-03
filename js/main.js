@@ -44,8 +44,9 @@
         '</div></div>';
     }
     return '<div class="menu-grid">' +
-      cat.items.map(([name, price, hot, lines]) =>
-        '<article class="menu-item">' +
+      cat.items.map(([name, price, hot, lines, image]) =>
+        '<article class="menu-item' + (image ? ' menu-item--img' : '') + '">' +
+          (image ? '<img class="menu-img" src="' + esc(image) + '" alt="' + esc(name) + '" loading="lazy" width="96" height="96">' : '') +
           '<div class="menu-item-head">' +
             '<h3 class="menu-name" style="margin:0">' + esc(name) + '</h3>' +
             spiceHtml(hot, cat.color) +

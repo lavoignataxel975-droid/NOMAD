@@ -928,3 +928,8 @@ button { font: inherit; }
   html { scroll-behavior: auto; }
   .marquee-track, .photo-track { animation-duration: 180s; }
 }
+
+/* Image d'un produit (ajoutée depuis le CMS) : seulement si le produit en a une */
+.menu-item--img { position: relative; padding-right: 108px; }
+.menu-img { position: absolute; top: 0; right: 0; width: 96px; height: 96px; object-fit: cover; border-radius: 12px; }
+@media (max-width: 600px) { .menu-item--img { padding-right: 84px; } .menu-img { width: 72px; height: 72px; } }

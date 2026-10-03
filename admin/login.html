@@ -29,7 +29,9 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: e.target.username.value, password: e.target.password.value })
       });
-      if (r.ok) return location.replace('/admin/orders');
+      // retour vers la page demandée (?next=), seulement si c'est une page du back-office ; sinon les commandes
+      const next = new URLSearchParams(location.search).get('next');
+      if (r.ok) return location.replace(/^\/admin\/(orders|orders\/archive|products)$/.test(next || '') ? next : '/admin/orders');
       err.textContent = (await r.json()).error || 'Connexion impossible.';
     } catch (x) {
       err.textContent = 'Serveur injoignable.';

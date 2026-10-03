@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Produits — NOMAD</title>
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/admin/assets/admin.css">
+</head>
+<body>
+<header class="bar">
+  <a class="bar-logo" href="/admin/orders">NOMAD</a>
+  <span class="bar-title">Produits de la carte</span>
+  <nav class="bar-nav">
+    <a href="/admin/orders">Aujourd’hui</a>
+    <a href="/admin/orders/archive">Archives</a>
+    <a href="/admin/products" aria-current="page">Produits</a>
+    <button type="button" id="logout">Déconnexion</button>
+  </nav>
+</header>
+
+<main>
+  <div class="summary">
+    <div class="pc-tabs" id="tabs" role="tablist" aria-label="Catégories"></div>
+    <div class="summary-tools">
+      <a class="tool" href="/#carte" target="_blank" rel="noopener">Voir la carte ↗</a>
+      <button type="button" class="tool pc-new" id="newBtn">+ Ajouter un produit</button>
+    </div>
+  </div>
+  <div class="pc-list" id="list"><p class="empty">Chargement…</p></div>
+</main>
+
+<!-- Fiche produit : ajout et modification -->
+<dialog class="pc-dialog" id="dialog" aria-labelledby="dlgTitle">
+  <form method="dialog" id="form" novalidate>
+    <h2 id="dlgTitle">Nouveau produit</h2>
+    <div class="pc-form-grid">
+      <label>Nom<input name="name" maxlength="60" autocomplete="off" required></label>
+      <label>Catégorie<select name="cat" required></select></label>
+      <label>Prix (€)<input name="price" inputmode="decimal" autocomplete="off" placeholder="12 ou 1,50" required></label>
+      <label>Piquant
+        <select name="spice">
+          <option value="0">Aucun</option><option value="1">1</option><option value="2">2</option>
+          <option value="3">3</option><option value="4">4</option><option value="5">5</option>
+        </select>
+      </label>
+    </div>
+    <label>Description / ingrédients <small>(un par ligne · option payante : « Supp. cheese +2€ »)</small>
+      <textarea name="description" rows="7"></textarea>
+    </label>
+    <div class="pc-image" id="imageBox">
+      <span class="pc-image-label">Image</span>
+      <div class="pc-image-row">
+        <img id="imgPreview" alt="" hidden>
+        <span class="pc-muted" id="imgNone">Aucune image</span>
+        <label class="btn pc-file">Choisir une image<input type="file" id="imgInput" accept="image/jpeg,image/png,image/webp" hidden></label>
+        <button type="button" class="btn btn--danger" id="imgRemove" hidden>Retirer</button>
+      </div>
+      <p class="pc-muted" id="imgHint">Enregistrez d’abord le produit pour lui ajouter une image.</p>
+    </div>
+    <p class="error" id="formError" role="alert"></p>
+    <div class="pc-actions">
+      <button type="button" class="btn btn--danger" id="deleteBtn" hidden>Supprimer</button>
+      <button type="button" class="btn" id="cancelBtn">Annuler</button>
+      <button type="submit" class="btn pc-save">Enregistrer</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="/admin/assets/common.js"></script>
+<script src="/admin/assets/products.js"></script>
+</body>
+</html>
